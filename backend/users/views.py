@@ -1,15 +1,15 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, mixins
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import Ingredient, User
-from .serializers import IngredientSerializer
+from .serializers import IngredientSerializer, UserSerializerAnswer
 
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .permissions import IsAdmin, IsOwner
-from .serializers import UserSerializer, UserSerializerSimpleUser
+from .serializers import UserSerializer #, UserSerializerSimpleUser
 
 
 RESTRICTED_USERNAMES = [
@@ -22,53 +22,50 @@ class IngredientViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientSerializer
 
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def user_view(request):
-    serializer = UserSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    eml = serializer.data.get('email')
-    username = serializer.data.get('username')
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]
 
-    if username in RESTRICTED_USERNAMES:
-        return Response(
-            {
-                'username':
-                    f'Wrong username. Username - {username} is restricted'},
-            status=status.HTTP_400_BAD_REQUEST)
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-    if User.objects.filter(username=username).exists():
-        return Response(
-            {
-                'username':
-                    f'Wrong username. Such user - {username}  - is already used'
-            },
-            status=status.HTTP_400_BAD_REQUEST)
+        eml = request.data.get('email')
+        username = request.data.get('username')
 
-    if User.objects.filter(email=eml).exists():
-        return Response(
-            {
-                'email':
-                    f'Wrong email. Such email - {eml}  - is already used'
-            },
-            status=status.HTTP_400_BAD_REQUEST)
+        if username in RESTRICTED_USERNAMES:
+            return Response(
+                {
+                    'username':
+                        f'Wrong username. Username - {username} is restricted'},
+                status=status.HTTP_400_BAD_REQUEST)
 
-    User.objects.create(
-        email=eml,
-        username=username,
-        first_name=serializer.data.get('first_name'),
-        last_name=serializer.data.get('last_name'),
-        password=serializer.data.get('password')
-    )
+        if User.objects.filter(username=username).exists():
+            return Response(
+                {
+                    'username':
+                        f'Wrong username. Such user - {username}  - is already used'
+                },
+                status=status.HTTP_400_BAD_REQUEST)
 
-    # serializer.save()
-    # answer_data = serializer.data.popitem('password')
-    answer_data = serializer.data
-    answer_data.popitem("password")
-    answer_data["id"] = User.objects.filter(username=username)[0].id
+        if User.objects.filter(email=eml).exists():
+            return Response(
+                {
+                    'email':
+                        f'Wrong email. Such email - {eml}  - is already used'
+                },
+                status=status.HTTP_400_BAD_REQUEST)
 
-    # return Response(serializer.data, status=status.HTTP_200_OK)
-    return Response(answer_data, status=status.HTTP_200_OK)
+        User.objects.create(**serializer.validated_data)
+
+        queryset = User.objects.all()
+        saved_user = get_object_or_404(queryset, email=eml)
+        serializer_ans = UserSerializerAnswer(saved_user)
+
+        return Response(serializer_ans.data, status=status.HTTP_201_CREATED)
+
+
 
 
 # @api_view(['POST'])

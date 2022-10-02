@@ -14,18 +14,16 @@ class IngredientSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('email', 'username', 'first_name', 'last_name', 'password')
-
         model = User
+        fields = ('email', 'username', 'first_name', 'last_name', 'password')
         lookup_field = "username"
         lookup_value_regex = "[^/]+"
 
 
-class UserSerializerSimpleUser(serializers.ModelSerializer):
-    role = serializers.CharField(read_only=True)
+class UserSerializerAnswer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('email', 'username', 'first_name', 'last_name', 'password')
         model = User
+        fields = ('id', 'email', 'username', 'first_name', 'last_name')
         lookup_field = "username"
         lookup_value_regex = "[^/]+"

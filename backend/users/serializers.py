@@ -27,3 +27,8 @@ class UserSerializerAnswer(serializers.ModelSerializer):
         fields = ('id', 'email', 'username', 'first_name', 'last_name')
         lookup_field = "username"
         lookup_value_regex = "[^/]+"
+
+
+class TokenSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(required=True)

@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import Ingredient, User
-from .serializers import IngredientSerializer, UserSerializerAnswer
+from .serializers import IngredientSerializer, UserSerializerAnswer, TokenSerializer
 
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -66,17 +66,15 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer_ans.data, status=status.HTTP_201_CREATED)
 
 
-
-
-# @api_view(['POST'])
-# @permission_classes([AllowAny])
-# def token(request):
-#     serializer = ConfirmSerializer(data=request.data)
-#     serializer.is_valid(raise_exception=True)
-#     username = serializer.data.get('username')
-#     user = get_object_or_404(User, username=username)
-#     if user.confirm == serializer.data.get('confirmation_code'):
-#         token = str(RefreshToken.for_user(user).access_token)
-#         return Response({'token': token}, status=status.HTTP_200_OK)
-#     return Response({'confirmation_code': 'Wrong confirmation code'},
-#                     status=status.HTTP_400_BAD_REQUEST)
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def get_token(request):
+    serializer = TokenSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    email = serializer.data.get('email')
+    user = get_object_or_404(User, email=email)
+    if user.password == serializer.data.get('password'):
+        token = str(RefreshToken.for_user(user).access_token)
+        return Response({"auth_token": token}, status=status.HTTP_201_CREATED)
+    return Response({"auth_token": "Wrong user password"},
+                    status=status.HTTP_400_BAD_REQUEST)

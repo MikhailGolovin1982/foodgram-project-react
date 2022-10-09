@@ -1,3 +1,5 @@
+from django.contrib.auth import logout
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import viewsets, status, mixins
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -57,7 +59,9 @@ class UserViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_400_BAD_REQUEST)
 
-        User.objects.create(**serializer.validated_data)
+        user = User.objects.create(**serializer.validated_data)
+        user.set_password(serializer.validated_data['password'])
+        user.save()
 
         queryset = User.objects.all()
         saved_user = get_object_or_404(queryset, email=eml)

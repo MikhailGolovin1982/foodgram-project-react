@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import (User, Recipe, Ingredient, QuantityIngredient)
+from .models import User
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -18,7 +18,3 @@ class UserAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, UserAdmin)
-
-admin.site.register(Ingredient)
-admin.site.register(QuantityIngredient)
-admin.site.register(Recipe)

@@ -43,7 +43,7 @@ class Tag(models.Model):
         help_text="К нему потом можно будет обращаться",
     )
 
-    color = models.CharField(max_length=16)
+    color = models.CharField(max_length=7)
 
     def __str__(self):
         return self.name

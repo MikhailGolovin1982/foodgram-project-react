@@ -15,9 +15,20 @@ class Ingredient(models.Model):
         help_text="Здесь будет указано название единиц измерения",
     )
 
+    class Meta:
+        verbose_name = "Ингредиент"
+        verbose_name_plural = "Ингредиенты"
+
     def __str__(self):
         return self.name
 
+
+# class IngredientRecipe(models.Model):
+#     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
+#                                related_name='ingredient_recipes')
+#     ingredient = models.ForeignKey(Ingredient,  on_delete=models.CASCADE,
+#                                    related_name='ingredient_recipes')
+#     amount = models.IntegerField('Количество')
 
 class QuantityIngredient(models.Model):
     ingredient = models.ForeignKey(
@@ -45,6 +56,10 @@ class Tag(models.Model):
 
     color = models.CharField(max_length=7)
 
+    class Meta:
+        verbose_name = "Тэг"
+        verbose_name_plural = "Тэги"
+
     def __str__(self):
         return self.name
 
@@ -55,34 +70,53 @@ class Recipe(models.Model):
         verbose_name="Название рецепта",
         help_text="Здесь будет указано название рецепта",
     )
-    description = models.TextField(
+    texts = models.TextField(
         max_length=1000,
         verbose_name="Описание рецепта",
         help_text="Здесь будет указано описание рецепта",
     )
 
-    ingredient = models.ManyToManyField(
+    ingredients = models.ManyToManyField(
         QuantityIngredient,
         related_name='quantity_ingredient',
-        verbose_name="Ингредиент рецепта",
-        help_text="Ингредиент рецепта",
+        verbose_name='Ингредиенты рецепта',
+        help_text='Ингредиенты рецепта',
     )
 
-    tag = models.ManyToManyField(
+    tags = models.ManyToManyField(
         Tag,
         related_name='tags',
-        verbose_name="Тэг",
-        help_text="Тэг рецепта",
+        verbose_name='Тэг',
+        help_text='Тэг рецепта',
     )
 
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='recipes')
+        User,
+        on_delete=models.CASCADE,
+        related_name='recipes',
+        verbose_name='Автор рецепта'
+    )
+
+    cooking_time = models.IntegerField(
+        verbose_name='Время приготовления',
+        help_text='Укажите время приготовления в минутах'
+    )
 
     pub_date = models.DateTimeField(
         'Дата публикации',
         auto_now_add=True,
         db_index=True
     )
+
+    image = models.ImageField(
+        upload_to='recipes/images/',
+        null=True,
+        default=None
+    )
+
+    class Meta:
+        verbose_name = "Рецепт"
+        verbose_name_plural = "Рецепты"
 
     def __str__(self):
         return self.name

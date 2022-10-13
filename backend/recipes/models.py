@@ -23,22 +23,15 @@ class Ingredient(models.Model):
         return self.name
 
 
-# class IngredientRecipe(models.Model):
-#     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
-#                                related_name='ingredient_recipes')
-#     ingredient = models.ForeignKey(Ingredient,  on_delete=models.CASCADE,
-#                                    related_name='ingredient_recipes')
-#     amount = models.IntegerField('Количество')
-
-class QuantityIngredient(models.Model):
-    ingredient = models.ForeignKey(
-        Ingredient, related_name='ingredients',
-        on_delete=models.CASCADE
-    )
-    quantity = models.IntegerField(verbose_name='количество')
-
-    def __str__(self):
-        return self.ingredient.name
+# class QuantityIngredient(models.Model):
+#     ingredient = models.ForeignKey(
+#         Ingredient, related_name='ingredients',
+#         on_delete=models.CASCADE
+#     )
+#     quantity = models.IntegerField(verbose_name='количество')
+#
+#     def __str__(self):
+#         return self.ingredient.name
 
 
 class Tag(models.Model):
@@ -77,8 +70,9 @@ class Recipe(models.Model):
     )
 
     ingredients = models.ManyToManyField(
-        QuantityIngredient,
-        related_name='quantity_ingredient',
+        Ingredient,
+        through='IngredientRecipe',
+        related_name='recipe_ingredient',
         verbose_name='Ингредиенты рецепта',
         help_text='Ингредиенты рецепта',
     )
@@ -115,8 +109,21 @@ class Recipe(models.Model):
     )
 
     class Meta:
-        verbose_name = "Рецепт"
-        verbose_name_plural = "Рецепты"
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
 
     def __str__(self):
         return self.name
+
+
+class IngredientRecipe(models.Model):
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
+                               related_name='ingredient_recipes')
+    ingredient = models.ForeignKey(Ingredient,  on_delete=models.CASCADE,
+                                   related_name='ingredient_recipes')
+    amount = models.IntegerField('Количество')
+
+    class Meta:
+        verbose_name = 'Ингредиенты рецептов'
+        verbose_name_plural = 'Ингредиенты рецептов'
+

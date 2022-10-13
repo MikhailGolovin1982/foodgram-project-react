@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from recipes.models import Ingredient, Tag, Recipe
+from recipes.models import Ingredient, Tag, Recipe, IngredientRecipe
 import base64  # Модуль с функциями кодирования и декодирования base64
 
 from django.core.files.base import ContentFile
@@ -10,6 +10,21 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
+
+
+class IngredientRecipeSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(read_only=True,
+                                            source='ingredient.id')
+    name = serializers.CharField(read_only=True,
+                                 source='ingredient.name')
+    measurement_unit = serializers.CharField(
+        read_only=True,
+        source='ingredient.measurement_unit'
+    )
+
+    class Meta:
+        model = IngredientRecipe
+        fields = ['id', 'name', 'measurement_unit', 'amount']
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -37,9 +52,11 @@ class Base64ImageField(serializers.ImageField):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    # ingredients = IngredientRecipeSerializer(
-    #     many=True, read_only=True, source='ingredient_recipes'
-    # )
+    tags = TagSerializer(many=True, read_only=True)
+    # author = UserSerializer(read_only=True)
+    ingredients = IngredientRecipeSerializer(
+        many=True, read_only=True, source='ingredient_recipes'
+    )
     image = Base64ImageField(required=False, allow_null=True)
 
     class Meta:

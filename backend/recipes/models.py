@@ -63,7 +63,7 @@ class Recipe(models.Model):
         verbose_name="Название рецепта",
         help_text="Здесь будет указано название рецепта",
     )
-    texts = models.TextField(
+    text = models.TextField(
         max_length=1000,
         verbose_name="Описание рецепта",
         help_text="Здесь будет указано описание рецепта",

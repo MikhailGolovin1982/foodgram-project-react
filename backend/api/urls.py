@@ -6,7 +6,7 @@ from api.views.recipes import IngredientViewSet, TagViewSet, RecipeViewSet
 router = SimpleRouter()
 router.register('ingredients', IngredientViewSet)
 router.register('tags', TagViewSet)
-router.register('recipes', RecipeViewSet)
+router.register(r'recipes', RecipeViewSet)
 
 
 urlpatterns = [

@@ -82,7 +82,7 @@ class RecipeSerializerLight(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ['id', 'tags', 'ingredients', 'name', 'image',
+        fields = ['ingredients', 'tags', 'name', 'image',
                   'text', 'cooking_time']
 
     def to_representation(self, instance):
@@ -102,12 +102,28 @@ class RecipeSerializerLight(serializers.ModelSerializer):
         ])
 
     def create(self, validated_data):
-        print(validated_data)
         author = self.context.get('request').user
         tags_data = validated_data.pop('tags')
         ingredients_data = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(author=author, **validated_data)
         recipe.tags.set(tags_data)
         self.add_ingredients(ingredients_data, recipe)
-
         return recipe
+
+    def update(self, instance, validated_data):
+        recipe = instance
+        instance.image = validated_data.get('image', instance.image)
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.name)
+        instance.cooking_time = validated_data.get(
+            'cooking_time', instance.cooking_time
+        )
+        instance.tags.clear()
+        instance.ingredients.clear()
+        tags_data = validated_data.get('tags')
+        instance.tags.set(tags_data)
+        ingredients_data = validated_data.get('ingredients')
+        IngredientRecipe.objects.filter(recipe=recipe).delete()
+        self.add_ingredients(ingredients_data, recipe)
+        instance.save()
+        return instance

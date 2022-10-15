@@ -23,17 +23,6 @@ class Ingredient(models.Model):
         return self.name
 
 
-# class QuantityIngredient(models.Model):
-#     ingredient = models.ForeignKey(
-#         Ingredient, related_name='ingredients',
-#         on_delete=models.CASCADE
-#     )
-#     quantity = models.IntegerField(verbose_name='количество')
-#
-#     def __str__(self):
-#         return self.ingredient.name
-
-
 class Tag(models.Model):
     name = models.CharField(
         max_length=20,
@@ -117,10 +106,8 @@ class Recipe(models.Model):
 
 
 class IngredientRecipe(models.Model):
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
-                               related_name='ingredient_recipes')
-    ingredient = models.ForeignKey(Ingredient,  on_delete=models.CASCADE,
-                                   related_name='ingredient_recipes')
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='recipe_ingredients')
+    ingredient = models.ForeignKey(Ingredient,  on_delete=models.CASCADE, related_name='ingredients')
     amount = models.IntegerField('Количество')
 
     class Meta:

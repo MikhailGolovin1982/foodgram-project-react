@@ -1,4 +1,7 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+
+from api.serializers.users import UserSerializer
 from recipes.models import Ingredient, Tag, Recipe, IngredientRecipe
 import base64  # Модуль с функциями кодирования и декодирования base64
 
@@ -13,8 +16,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(read_only=True,
-                                            source='ingredient.id')
+    # id = serializers.PrimaryKeyRelatedField(read_only=True)
     name = serializers.CharField(read_only=True,
                                  source='ingredient.name')
     measurement_unit = serializers.CharField(
@@ -25,6 +27,14 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = IngredientRecipe
         fields = ['id', 'name', 'measurement_unit', 'amount']
+
+
+class IngredientRecipeLightSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+
+    class Meta:
+        model = IngredientRecipe
+        fields = ['id', 'amount']
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -53,9 +63,9 @@ class Base64ImageField(serializers.ImageField):
 
 class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
-    # author = UserSerializer(read_only=True)
+    author = UserSerializer(read_only=True)
     ingredients = IngredientRecipeSerializer(
-        many=True, read_only=True, source='ingredient_recipes'
+        many=True, read_only=True, source='recipe_ingredients'
     )
     image = Base64ImageField(required=False, allow_null=True)
 
@@ -63,3 +73,41 @@ class RecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ['id', 'tags', 'author', 'ingredients', 'name', 'image',
                   'text', 'cooking_time']
+
+
+class RecipeSerializerLight(serializers.ModelSerializer):
+    image = Base64ImageField(required=False, allow_null=True)
+    ingredients = IngredientRecipeLightSerializer(
+        many=True, read_only=False)
+
+    class Meta:
+        model = Recipe
+        fields = ['id', 'tags', 'ingredients', 'name', 'image',
+                  'text', 'cooking_time']
+
+    def to_representation(self, instance):
+        serializer = RecipeSerializer(instance)
+        return serializer.data
+
+    @staticmethod
+    def add_ingredients(ingredients_data, recipe):
+        """Добавляет ингредиенты."""
+        IngredientRecipe.objects.bulk_create([
+            IngredientRecipe(
+                ingredient=ingredient.get('id'),
+                recipe=recipe,
+                amount=ingredient.get('amount')
+            )
+            for ingredient in ingredients_data
+        ])
+
+    def create(self, validated_data):
+        print(validated_data)
+        author = self.context.get('request').user
+        tags_data = validated_data.pop('tags')
+        ingredients_data = validated_data.pop('ingredients')
+        recipe = Recipe.objects.create(author=author, **validated_data)
+        recipe.tags.set(tags_data)
+        self.add_ingredients(ingredients_data, recipe)
+
+        return recipe

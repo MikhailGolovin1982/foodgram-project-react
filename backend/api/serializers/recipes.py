@@ -128,15 +128,3 @@ class RecipeSerializePOST(serializers.ModelSerializer):
         instance.save()
         return instance
 
-
-# class RecipeSerializerShort(serializers.ModelSerializer):
-#     """Сериализатор для компактного отображения рецептов."""
-#
-#     class Meta:
-#         model = Recipe
-#         fields = (
-#             'id',
-#             'name',
-#             'image',
-#             'cooking_time'
-#         )

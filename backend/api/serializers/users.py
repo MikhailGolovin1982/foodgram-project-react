@@ -1,9 +1,9 @@
 from django.contrib.auth.models import AnonymousUser
 from rest_framework import serializers
-from rest_framework.fields import SerializerMethodField, CurrentUserDefault
+from rest_framework.fields import SerializerMethodField
 from rest_framework.validators import UniqueTogetherValidator
 
-# from api.serializers.recipes import RecipeSerializerShort
+from recipes.models import Recipe
 from users.models import User, Follow
 
 
@@ -22,15 +22,6 @@ class UserSerializer(serializers.ModelSerializer):
             return False
 
         return Follow.objects.filter(user=request_user, following=obj).exists()
-
-
-# class SubscribeSerializerRepresentation(serializers.ModelSerializer):
-#     author = UserSerializer(read_only=True)
-#     recipes = RecipeSerializerShort(many=True, read_only=True)
-#
-#     class Meta:
-#         model = User
-#         fields = ['author', 'recipes']
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
@@ -54,6 +45,45 @@ class SubscribeSerializer(serializers.ModelSerializer):
             )
         return data
 
-    # def to_representation(self, instance):
-    #             serializer = SubscribeSerializerRepresentation(instance)
-    #             return serializer.data
+
+class SubscriptionRecipeShortSerializer(serializers.ModelSerializer):
+    """Сериализатор для отображения рецептов в подписке."""
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )
+
+
+# class SubscriptionShowSerializer(serializers.ModelSerializer):
+class SubscriptionShowSerializer(UserSerializer):
+    """Сериализатор отображения подписок."""
+
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count'
+        )
+
+    def get_recipes(self, obj):
+        author_recipes = obj.recipes.all()
+        return SubscriptionRecipeShortSerializer(
+            author_recipes, many=True
+        ).data
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()

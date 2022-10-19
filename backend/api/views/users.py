@@ -3,19 +3,14 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from api.serializers.users import SubscribeSerializer
+from api.serializers.users import SubscribeSerializer, SubscriptionShowSerializer
 from users.models import User, Follow
 
 
 class SubscribeViewSet(viewsets.ModelViewSet):
     serializer_class = SubscribeSerializer
     queryset = User.objects.all()
-    # permission_classes = (,)
-    # pagination_class = PageNumberPagination
 
-    # def perform_create(self, serializer):
-    #     user_following = get_object_or_404(User, id=self.kwargs.get('id'))
-    #     serializer.save(user=self.request.user, following=user_following)
     @action(
         detail=True,
         methods=['post', 'delete'],
@@ -33,12 +28,12 @@ class SubscribeViewSet(viewsets.ModelViewSet):
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            # author_serializer = SubscriptionShowSerializer(
-            #     author, context={'request': request}
-            # )
+            author_serializer = SubscriptionShowSerializer(
+                author, context={'request': request}
+            )
             return Response(
-                # author_serializer.data, status=status.HTTP_201_CREATED
-                serializer.data, status=status.HTTP_201_CREATED
+                author_serializer.data, status=status.HTTP_201_CREATED
+                # serializer.data, status=status.HTTP_201_CREATED
             )
         subscription = get_object_or_404(
             Follow, user=request.user, following=author

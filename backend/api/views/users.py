@@ -24,6 +24,7 @@ class SubscribeViewSet(viewsets.ModelViewSet):
     def subscribe(self, request, *args, **kwargs):
         """Позволяет текущему пользователю подписываться/отписываться от
         от автора контента, чей профиль он просматривает."""
+
         target_user = int(kwargs['id'])
         author = get_object_or_404(User, id=target_user)
         if request.method == 'POST':

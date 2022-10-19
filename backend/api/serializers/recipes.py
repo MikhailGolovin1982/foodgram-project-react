@@ -75,7 +75,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                   'text', 'cooking_time']
 
 
-class RecipeSerializerLight(serializers.ModelSerializer):
+class RecipeSerializePOST(serializers.ModelSerializer):
     image = Base64ImageField(required=False, allow_null=True)
     ingredients = IngredientRecipeLightSerializer(
         many=True, read_only=False)
@@ -127,3 +127,16 @@ class RecipeSerializerLight(serializers.ModelSerializer):
         self.add_ingredients(ingredients_data, recipe)
         instance.save()
         return instance
+
+
+# class RecipeSerializerShort(serializers.ModelSerializer):
+#     """Сериализатор для компактного отображения рецептов."""
+#
+#     class Meta:
+#         model = Recipe
+#         fields = (
+#             'id',
+#             'name',
+#             'image',
+#             'cooking_time'
+#         )

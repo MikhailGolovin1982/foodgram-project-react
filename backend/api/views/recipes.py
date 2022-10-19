@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions
 
 from recipes.models import Ingredient, Tag, Recipe
-from api.serializers.recipes import IngredientSerializer, TagSerializer, RecipeSerializer, RecipeSerializerLight
+from api.serializers.recipes import IngredientSerializer, TagSerializer, RecipeSerializer, RecipeSerializePOST
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 
@@ -28,5 +28,5 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
-            return RecipeSerializerLight
+            return RecipeSerializePOST
         return RecipeSerializer

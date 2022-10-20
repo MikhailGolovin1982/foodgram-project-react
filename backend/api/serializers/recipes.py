@@ -1,8 +1,9 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from api.serializers.users import UserSerializer
-from recipes.models import Ingredient, Tag, Recipe, IngredientRecipe
+from recipes.models import Ingredient, Tag, Recipe, IngredientRecipe, Favorite
 import base64  # Модуль с функциями кодирования и декодирования base64
 
 from django.core.files.base import ContentFile
@@ -128,3 +129,16 @@ class RecipeSerializePOST(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('user', 'recipe')
+        model = Favorite
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Favorite.objects.all(),
+                fields=['user', 'recipe'],
+                message='Only unique favorite is possible'
+            )
+        ]

@@ -46,7 +46,7 @@ class SubscribeSerializer(serializers.ModelSerializer):
         return data
 
 
-class SubscriptionRecipeShortSerializer(serializers.ModelSerializer):
+class RecipeShortSerializer(serializers.ModelSerializer):
     """Сериализатор для отображения рецептов в подписке."""
 
     class Meta:
@@ -59,7 +59,6 @@ class SubscriptionRecipeShortSerializer(serializers.ModelSerializer):
         )
 
 
-# class SubscriptionShowSerializer(serializers.ModelSerializer):
 class SubscriptionShowSerializer(UserSerializer):
     """Сериализатор отображения подписок."""
 
@@ -81,7 +80,7 @@ class SubscriptionShowSerializer(UserSerializer):
 
     def get_recipes(self, obj):
         author_recipes = obj.recipes.all()
-        return SubscriptionRecipeShortSerializer(
+        return RecipeShortSerializer(
             author_recipes, many=True
         ).data
 

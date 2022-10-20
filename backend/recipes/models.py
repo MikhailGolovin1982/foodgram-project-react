@@ -114,3 +114,33 @@ class IngredientRecipe(models.Model):
         verbose_name = 'Ингредиенты рецептов'
         verbose_name_plural = 'Ингредиенты рецептов'
 
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='user',
+        verbose_name='User',
+        help_text='Choose the user'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='favorite',
+        verbose_name='Recipe',
+        help_text='Choose the recipe'
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique favorite'
+            )
+        ]
+        verbose_name = 'Любимый рецепт'
+        verbose_name_plural = 'Любимые рецепты'
+
+    def __str__(self):
+        return f'--{self.user}-- likes the recipe --{self.recipe}--'
+

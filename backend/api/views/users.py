@@ -8,8 +8,7 @@ from users.models import User, Follow
 
 
 class SubscribeViewSet(viewsets.ModelViewSet):
-    serializer_class = SubscribeSerializer
-    queryset = User.objects.all()
+    serializer_class = SubscriptionShowSerializer
 
     @action(
         detail=True,
@@ -33,10 +32,26 @@ class SubscribeViewSet(viewsets.ModelViewSet):
             )
             return Response(
                 author_serializer.data, status=status.HTTP_201_CREATED
-                # serializer.data, status=status.HTTP_201_CREATED
             )
         subscription = get_object_or_404(
             Follow, user=request.user, following=author
         )
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=(permissions.IsAuthenticated,)
+    )
+    def subscriptions(self, request):
+        """Позволяет текущему пользователю
+        просмотреть свои подписки."""
+
+        queryset = [obj.following for obj in Follow.objects.filter(user=request.user)]
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(
+            serializer.data, status=status.HTTP_200_OK
+        )
+
+

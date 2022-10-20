@@ -11,6 +11,7 @@ router.register(r'recipes', RecipeViewSet)
 
 urlpatterns = [
     path(r'users/<int:id>/subscribe/', SubscribeViewSet.as_view({'post': 'subscribe', 'delete': 'subscribe'})),
+    path(r'users/subscriptions/', SubscribeViewSet.as_view({'get': 'subscriptions'})),
     path('', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),  # Работа с токенами.
     path('', include(router.urls)),

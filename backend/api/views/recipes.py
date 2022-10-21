@@ -4,9 +4,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from api.serializers.users import RecipeShortSerializer
-from recipes.models import Ingredient, Tag, Recipe, Favorite
+from recipes.models import Ingredient, Tag, Recipe, Favorite, ShoppingCart
 from api.serializers.recipes import IngredientSerializer, TagSerializer, RecipeSerializer, RecipeSerializePOST, \
-    FavoriteSerializer
+    FavoriteSerializer, ShoppingCartSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 
@@ -64,3 +64,33 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         favorite.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=(permissions.IsAuthenticated,)
+    )
+    def shopping_cart(self, request, *args, **kwargs):
+        """Позволяет текущему пользователю добавить/удалить
+        рецепт в список покупокs"""
+
+        target_recipe = int(kwargs['id'])
+        recipe = get_object_or_404(Recipe, id=target_recipe)
+        if request.method == 'POST':
+            serializer = ShoppingCartSerializer(
+                data={'user': request.user.id, 'recipe': recipe.id}
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            represent_serializer = RecipeShortSerializer(
+                recipe, context={'request': request}
+            )
+            return Response(
+                represent_serializer.data, status=status.HTTP_201_CREATED
+            )
+        delete_obj = get_object_or_404(
+            ShoppingCart, user=request.user, recipe=recipe
+        )
+        delete_obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+

@@ -119,14 +119,14 @@ class Favorite(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='user',
+        related_name='favorites',
         verbose_name='User',
         help_text='Choose the user'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='favorite',
+        related_name='favorites',
         verbose_name='Recipe',
         help_text='Choose the recipe'
     )
@@ -143,4 +143,35 @@ class Favorite(models.Model):
 
     def __str__(self):
         return f'--{self.user}-- likes the recipe --{self.recipe}--'
+
+
+class ShoppingCart(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shopping_cart',
+        verbose_name='User',
+        help_text='Choose the user'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='shopping_cart',
+        verbose_name='Recipe',
+        help_text='Choose the recipe'
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique shopping_cart'
+            )
+        ]
+        verbose_name = 'Закупка по рецепту'
+        verbose_name_plural = 'Закупки по рецептам'
+
+    def __str__(self):
+        return f'--{self.user}-- wants to buy ingredients from the recipes --{self.recipe}--'
+
 

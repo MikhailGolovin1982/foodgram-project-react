@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from api.serializers.users import UserSerializer
-from recipes.models import Ingredient, Tag, Recipe, IngredientRecipe, Favorite
+from recipes.models import Ingredient, Tag, Recipe, IngredientRecipe, Favorite, ShoppingCart
 import base64  # Модуль с функциями кодирования и декодирования base64
 
 from django.core.files.base import ContentFile
@@ -142,3 +142,18 @@ class FavoriteSerializer(serializers.ModelSerializer):
                 message='Only unique favorite is possible'
             )
         ]
+
+
+class ShoppingCartSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('user', 'recipe')
+        model = ShoppingCart
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Favorite.objects.all(),
+                fields=['user', 'recipe'],
+                message='Only unique recipe for purchases is possible'
+            )
+        ]
+

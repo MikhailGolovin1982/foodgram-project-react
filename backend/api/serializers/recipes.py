@@ -3,6 +3,7 @@ import base64  # Модуль с функциями кодирования и д
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework.fields import SerializerMethodField
 from rest_framework.validators import UniqueTogetherValidator
 
 from api.serializers.users import UserSerializer
@@ -18,7 +19,6 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientRecipeSerializer(serializers.ModelSerializer):
-    # id = serializers.PrimaryKeyRelatedField(read_only=True)
     name = serializers.CharField(read_only=True,
                                  source='ingredient.name')
     measurement_unit = serializers.CharField(
@@ -70,11 +70,28 @@ class RecipeSerializer(serializers.ModelSerializer):
         many=True, read_only=True, source='recipe_ingredients'
     )
     image = Base64ImageField(required=False, allow_null=True)
+    is_favorited = SerializerMethodField()
+    is_in_shopping_cart = SerializerMethodField()
 
     class Meta:
         model = Recipe
-        fields = ['id', 'tags', 'author', 'ingredients', 'name', 'image',
+        fields = ['id', 'tags', 'author', 'ingredients', 'is_favorited', 'is_in_shopping_cart', 'name', 'image',
                   'text', 'cooking_time']
+
+    def get_is_favorited(self, obj):
+        request_user = self.context.get('request').user
+        if not request_user.is_authenticated:
+            return False
+
+        return Favorite.objects.filter(user=request_user, recipe=obj).exists()
+
+    def get_is_in_shopping_cart(self, obj):
+        request_user = self.context.get('request').user
+        if not request_user.is_authenticated:
+            return False
+
+        return ShoppingCart.objects.filter(user=request_user, recipe=obj).exists()
+
 
 
 class RecipeSerializePOST(serializers.ModelSerializer):

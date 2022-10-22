@@ -1,12 +1,13 @@
+import base64  # Модуль с функциями кодирования и декодирования base64
+
+from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from api.serializers.users import UserSerializer
-from recipes.models import Ingredient, Tag, Recipe, IngredientRecipe, Favorite, ShoppingCart
-import base64  # Модуль с функциями кодирования и декодирования base64
-
-from django.core.files.base import ContentFile
+from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
+                            ShoppingCart, Tag)
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -93,6 +94,7 @@ class RecipeSerializePOST(serializers.ModelSerializer):
     @staticmethod
     def add_ingredients(ingredients_data, recipe):
         """Добавляет ингредиенты."""
+
         IngredientRecipe.objects.bulk_create([
             IngredientRecipe(
                 ingredient=ingredient.get('id'),

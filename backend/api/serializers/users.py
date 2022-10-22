@@ -4,7 +4,7 @@ from rest_framework.fields import SerializerMethodField
 from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.models import Recipe
-from users.models import User, Follow
+from users.models import Follow, User
 
 
 class UserSerializer(serializers.ModelSerializer):

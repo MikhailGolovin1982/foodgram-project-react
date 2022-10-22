@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
 from .manager import UserManager
+
 # from recipes.models import Recipe, Ingredient, QuantityIngredient
 
 

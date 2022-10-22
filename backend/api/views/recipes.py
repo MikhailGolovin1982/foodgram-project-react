@@ -1,14 +1,22 @@
+import io
+
+from django.db.models import Sum
+from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, permissions, status
+from django_filters.rest_framework import DjangoFilterBackend
+from reportlab.pdfbase import pdfmetrics, ttfonts
+from reportlab.pdfgen import canvas
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from api.serializers.recipes import (FavoriteSerializer, IngredientSerializer,
+                                     RecipeSerializePOST, RecipeSerializer,
+                                     ShoppingCartSerializer, TagSerializer)
 from api.serializers.users import RecipeShortSerializer
-from recipes.models import Ingredient, Tag, Recipe, Favorite, ShoppingCart
-from api.serializers.recipes import IngredientSerializer, TagSerializer, RecipeSerializer, RecipeSerializePOST, \
-    FavoriteSerializer, ShoppingCartSerializer
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+
+FILENAME = 'my_shopping_cart'
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -72,7 +80,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def shopping_cart(self, request, *args, **kwargs):
         """Позволяет текущему пользователю добавить/удалить
-        рецепт в список покупокs"""
+        рецепт в список покупок"""
 
         target_recipe = int(kwargs['id'])
         recipe = get_object_or_404(Recipe, id=target_recipe)
@@ -94,3 +102,52 @@ class RecipeViewSet(viewsets.ModelViewSet):
         delete_obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @action(
+        detail=True,
+        methods=['get'],
+        permission_classes=(permissions.IsAuthenticated,)
+    )
+    def download_shopping_cart(self, request, *args, **kwargs):
+        """Позволяет текущему пользователю получить список ингредиентов для покупки"""
+
+        buffer = io.BytesIO()
+        page = canvas.Canvas(buffer)
+        arial = ttfonts.TTFont('Arial', 'data/arial.ttf')
+        pdfmetrics.registerFont(arial)
+
+        x_position, y_position = 50, 800
+
+        user_shopping_cart = request.user.shopping_cart.values(
+            'recipe__ingredients__name',
+            'recipe__ingredients__measurement_unit'
+        ).annotate(amount=Sum('recipe__recipe_ingredients__amount'))
+        page.setFont('Arial', 14)
+
+        if user_shopping_cart:
+            indent = 20
+            page.drawString(x_position, y_position, 'Cписок покупок:')
+            for index, ingredient in enumerate(user_shopping_cart, start=1):
+                string = f'{index}. {ingredient["recipe__ingredients__name"]} -'
+                string += f'{ingredient["amount"]} '
+                string += f'{ingredient["recipe__ingredients__measurement_unit"]}'
+                # print(string)
+                page.drawString(
+                    x_position, y_position - indent,
+                    string)
+                y_position -= 15
+                if y_position <= 50:
+                    page.showPage()
+                    y_position = 800
+            page.save()
+            buffer.seek(0)
+            return FileResponse(
+                buffer, as_attachment=True, filename=FILENAME)
+        page.setFont('Arial', 14)
+        page.drawString(
+            x_position,
+            y_position,
+            'Cписок покупок пуст!')
+        page.save()
+        buffer.seek(0)
+
+        return HttpResponse(buffer, content_type='application/pdf')

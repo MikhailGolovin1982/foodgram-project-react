@@ -9,10 +9,12 @@ class IngredientRecipeInline(admin.TabularInline):
     extra = 1
 
 
+@admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     inlines = (IngredientRecipeInline,)
 
 
+@admin.register(Recipe)
 class RecipesAdmin(admin.ModelAdmin):
     inlines = (IngredientRecipeInline,)
     list_display = (
@@ -23,6 +25,7 @@ class RecipesAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = (
         'id',
@@ -31,6 +34,7 @@ class FavoriteAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(ShoppingCart)
 class ShoppingCartAdmin(admin.ModelAdmin):
     list_display = (
         'id',
@@ -39,8 +43,6 @@ class ShoppingCartAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(Tag)
-admin.site.register(Ingredient, IngredientAdmin)
-admin.site.register(Recipe, RecipesAdmin)
-admin.site.register(Favorite, FavoriteAdmin)
-admin.site.register(ShoppingCart, ShoppingCartAdmin)
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    prepopulated_fields = {"slug": ("name",)}

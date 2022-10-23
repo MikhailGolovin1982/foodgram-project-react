@@ -3,8 +3,6 @@ from django.db import models
 
 from .manager import UserManager
 
-# from recipes.models import Recipe, Ingredient, QuantityIngredient
-
 
 class User(AbstractUser):
     USER = 'user'
@@ -16,24 +14,34 @@ class User(AbstractUser):
     ]
 
     username = models.CharField(
-        'имя пользователя', max_length=150, unique=True)
-    email = models.EmailField('адрес электронной почты', unique=True,
-                              db_index=True)
-    role = models.CharField('права пользователя',
-                            max_length=9, choices=ROLE_CHOICES, default='user')
-    bio = models.TextField('коротко о себе', max_length=500, blank=True)
-    first_name = models.CharField('имя', max_length=150, blank=True)
-    last_name = models.CharField('фамилия', max_length=150, blank=True)
+        'Имя пользователя',
+        max_length=150,
+        unique=True
+    )
+    email = models.EmailField(
+        'Адрес электронной почты',
+        unique=True,
+        db_index=True
+    )
+    role = models.CharField(
+        'Права пользователя',
+        max_length=9,
+        choices=ROLE_CHOICES,
+        default='user'
+    )
+    bio = models.TextField('Коротко о себе', max_length=500, blank=True)
+    first_name = models.CharField('Имя', max_length=150, blank=True)
+    last_name = models.CharField('Фамилия', max_length=150, blank=True)
 
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name',]
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     class Meta:
         ordering = ['pk']
-        verbose_name = "Пользователь"
-        verbose_name_plural = "Пользователи"
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
     @property
     def is_admin(self):
@@ -45,23 +53,27 @@ class Follow(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='follower',
-        verbose_name='User',
-        help_text='Choose following user'
+        verbose_name='Пользователь',
+        help_text='Выберите пользователя'
     )
     following = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='following',
-        verbose_name='Author',
-        help_text='Choose author to follow'
+        verbose_name='Автор',
+        help_text='Выберите автора для подписки'
     )
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'following'],
-                name='unique follow'
-            )
+                name='unique_follow'
+            ),
+            models.CheckConstraint(
+                check=~models.Q(user=models.F('following')),
+                name='not_yourself_follow'
+            ),
         ]
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'

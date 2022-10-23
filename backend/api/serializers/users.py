@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AnonymousUser
+from djoser.serializers import UserSerializer
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 from rest_framework.validators import UniqueTogetherValidator
@@ -7,7 +7,7 @@ from recipes.models import Recipe
 from users.models import Follow, User
 
 
-class UserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(UserSerializer):
     is_subscribed = SerializerMethodField()
 
     class Meta:
@@ -22,6 +22,23 @@ class UserSerializer(serializers.ModelSerializer):
             return False
 
         return Follow.objects.filter(user=request_user, following=obj).exists()
+
+
+# class UserSerializer(serializers.ModelSerializer):
+#     is_subscribed = SerializerMethodField()
+#
+#     class Meta:
+#         model = User
+#         fields = ['email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed']
+#
+#     def get_is_subscribed(self, obj):
+#         request_user = self.context.get('request').user
+#         if not request_user.is_authenticated:
+#             return False
+#         elif request_user == obj:
+#             return False
+#
+#         return Follow.objects.filter(user=request_user, following=obj).exists()
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
@@ -44,19 +61,6 @@ class SubscribeSerializer(serializers.ModelSerializer):
                 'Подписка на cамого себя не имеет смысла'
             )
         return data
-
-
-class RecipeShortSerializer(serializers.ModelSerializer):
-    """Сериализатор для отображения рецептов в подписке."""
-
-    class Meta:
-        model = Recipe
-        fields = (
-            'id',
-            'name',
-            'image',
-            'cooking_time'
-        )
 
 
 class SubscriptionShowSerializer(UserSerializer):
@@ -86,3 +90,16 @@ class SubscriptionShowSerializer(UserSerializer):
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
+
+
+class RecipeShortSerializer(serializers.ModelSerializer):
+    """Сериализатор для отображения рецептов в подписке."""
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )

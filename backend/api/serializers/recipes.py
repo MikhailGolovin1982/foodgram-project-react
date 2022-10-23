@@ -1,12 +1,11 @@
 import base64  # Модуль с функциями кодирования и декодирования base64
 
 from django.core.files.base import ContentFile
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 from rest_framework.validators import UniqueTogetherValidator
 
-from api.serializers.users import UserSerializer
+from api.serializers.users import CustomUserSerializer
 from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                             ShoppingCart, Tag)
 
@@ -65,7 +64,7 @@ class Base64ImageField(serializers.ImageField):
 
 class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
-    author = UserSerializer(read_only=True)
+    author = CustomUserSerializer(read_only=True)
     ingredients = IngredientRecipeSerializer(
         many=True, read_only=True, source='recipe_ingredients'
     )
@@ -91,7 +90,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             return False
 
         return ShoppingCart.objects.filter(user=request_user, recipe=obj).exists()
-
 
 
 class RecipeSerializePOST(serializers.ModelSerializer):
@@ -175,4 +173,5 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
                 message='Only unique recipe for purchases is possible'
             )
         ]
+
 

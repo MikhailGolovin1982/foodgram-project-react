@@ -10,6 +10,14 @@ class IsAdmin(permissions.BasePermission):
         return request.user.is_admin
 
 
+class IsOwnerOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return (
+            request.method in permissions.SAFE_METHODS
+            or obj.author == request.user
+        )
+
+
 class IsOwner(permissions.BasePermission):
     """
     Custom permission to only allow admin or owner to access.

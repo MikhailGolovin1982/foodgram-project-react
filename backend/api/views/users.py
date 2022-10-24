@@ -1,3 +1,4 @@
+import djoser.views
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
@@ -6,6 +7,14 @@ from rest_framework.response import Response
 from api.serializers.users import (SubscribeSerializer,
                                    SubscriptionShowSerializer)
 from users.models import Follow, User
+
+
+class UserViewSet(djoser.views.UserViewSet):
+    @action(['get'], detail=False)
+    def me(self, request, *args, **kwargs):
+        self.get_object = self.get_instance
+        if request.method == "GET":
+            return self.retrieve(request, *args, **kwargs)
 
 
 class SubscribeViewSet(viewsets.ModelViewSet):

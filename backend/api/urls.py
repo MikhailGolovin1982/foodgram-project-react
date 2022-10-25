@@ -5,9 +5,9 @@ from api.views.recipes import IngredientViewSet, RecipeViewSet, TagViewSet
 from api.views.users import SubscribeViewSet, UserViewSet
 
 router = SimpleRouter()
-router.register('ingredients', IngredientViewSet)
-router.register('tags', TagViewSet)
-router.register(r'recipes', RecipeViewSet)
+router.register('ingredients', IngredientViewSet, basename='ingredients')
+router.register('tags', TagViewSet, basename='tags')
+router.register('recipes', RecipeViewSet, basename='recipes')
 
 urlpatterns = [
     path(r'recipes/<int:id>/shopping_cart/',

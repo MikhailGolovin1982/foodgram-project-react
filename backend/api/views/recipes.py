@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from reportlab.pdfbase import pdfmetrics, ttfonts
 from reportlab.pdfgen import canvas
-from rest_framework import filters, permissions, status, viewsets
+from rest_framework import filters, permissions, status, viewsets, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -85,6 +85,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         target_recipe = int(kwargs['id'])
         recipe = get_object_or_404(Recipe, id=target_recipe)
         if request.method == 'POST':
+            if ShoppingCart.objects.filter(
+                    user=request.user, recipe=recipe
+            ).exists():
+                raise serializers.ValidationError('Вы уже добавили этот sрецепт в корзину')
+
             serializer = ShoppingCartSerializer(
                 data={'user': request.user.id, 'recipe': recipe.id}
             )

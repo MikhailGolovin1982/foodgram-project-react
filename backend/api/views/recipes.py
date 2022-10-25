@@ -115,6 +115,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request, *args, **kwargs):
         """Позволяет текущему пользователю получить список ингредиентов для покупки"""
 
+        if not request.user.is_authenticated:
+            return Response({'Пользователь не авторизован'}, status=401)
+
         buffer = io.BytesIO()
         page = canvas.Canvas(buffer)
         arial = ttfonts.TTFont('Arial', 'data/arial.ttf')

@@ -24,23 +24,6 @@ class CustomUserSerializer(UserSerializer):
         return Follow.objects.filter(user=request_user, following=obj).exists()
 
 
-# class UserSerializer(serializers.ModelSerializer):
-#     is_subscribed = SerializerMethodField()
-#
-#     class Meta:
-#         model = User
-#         fields = ['email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed']
-#
-#     def get_is_subscribed(self, obj):
-#         request_user = self.context.get('request').user
-#         if not request_user.is_authenticated:
-#             return False
-#         elif request_user == obj:
-#             return False
-#
-#         return Follow.objects.filter(user=request_user, following=obj).exists()
-
-
 class SubscribeSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('user', 'following')
@@ -63,7 +46,7 @@ class SubscribeSerializer(serializers.ModelSerializer):
         return data
 
 
-class SubscriptionShowSerializer(UserSerializer):
+class SubscriptionShowSerializer(CustomUserSerializer):
     """Сериализатор отображения подписок."""
 
     recipes = serializers.SerializerMethodField()

@@ -1,4 +1,4 @@
-import base64  # Модуль с функциями кодирования и декодирования base64
+import base64
 
 from django.core.files.base import ContentFile
 from rest_framework import serializers
@@ -18,8 +18,10 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientRecipeSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(read_only=True, source='ingredient.id')
     name = serializers.CharField(read_only=True,
-                                 source='ingredient.name')
+                                 source='ingredient.name'
+                                 )
     measurement_unit = serializers.CharField(
         read_only=True,
         source='ingredient.measurement_unit'
@@ -95,16 +97,13 @@ class RecipeSerializer(serializers.ModelSerializer):
 class RecipeSerializePOST(serializers.ModelSerializer):
     image = Base64ImageField(required=False, allow_null=True)
     ingredients = IngredientRecipeLightSerializer(
-        many=True, read_only=False)
+        many=True, read_only=False
+    )
 
     class Meta:
         model = Recipe
         fields = ['ingredients', 'tags', 'name', 'image',
                   'text', 'cooking_time']
-
-    def to_representation(self, instance):
-        serializer = RecipeSerializer(instance)
-        return serializer.data
 
     @staticmethod
     def add_ingredients(ingredients_data, recipe):
@@ -130,6 +129,9 @@ class RecipeSerializePOST(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         recipe = instance
+        print(instance.tags)
+        if not validated_data:
+            return instance
         instance.image = validated_data.get('image', instance.image)
         instance.name = validated_data.get('name', instance.name)
         instance.text = validated_data.get('text', instance.name)

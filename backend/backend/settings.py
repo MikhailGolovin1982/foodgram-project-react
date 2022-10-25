@@ -1,22 +1,14 @@
 import os
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from dotenv import load_dotenv
 from datetime import timedelta
 from distutils.util import strtobool
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = 'u0_7^%3j-@p8_0-yo)p66x(v$6y=*y2#v-yr5g@u=2)wz(^dz7'
-
-DEBUG = True
-
-ALLOWED_HOSTS = ['*']
-
-# SECRET_KEY = os.getenv('SECRET_KEY', default='12345')
-#
-# DEBUG = strtobool(os.getenv('DEBUG', default='False'))
-#
-# ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='127.0.0.1').split(',')
-
+load_dotenv()
+SECRET_KEY = os.getenv('SECRET_KEY', default='12345')
+DEBUG = strtobool(os.getenv('DEBUG', default='False'))
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='127.0.0.1').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',

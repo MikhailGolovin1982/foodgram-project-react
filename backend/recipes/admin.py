@@ -45,4 +45,4 @@ class ShoppingCartAdmin(admin.ModelAdmin):
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    prepopulated_fields = {"slug": ("name",)}
+    prepopulated_fields = {'slug': ('name',)}

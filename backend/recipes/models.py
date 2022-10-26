@@ -1,4 +1,5 @@
 from django.core import validators
+from django.core.validators import RegexValidator
 from django.db import models
 
 from users.models import User
@@ -27,6 +28,7 @@ class Ingredient(models.Model):
 class Tag(models.Model):
     name = models.CharField(
         max_length=20,
+        unique=True,
         verbose_name='Название тэга',
         help_text='Здесь будет указано название тэга',
     )
@@ -37,7 +39,16 @@ class Tag(models.Model):
         help_text='К нему потом можно будет обращаться',
     )
 
-    color = models.CharField(max_length=7)
+    color = models.CharField(
+        max_length=7,
+        blank=True,
+        unique=True,
+        validators=[
+            RegexValidator(
+                regex='^#(?:[0-9a-fA-F]{3}){1,2}$',
+            )
+        ]
+    )
 
     class Meta:
         verbose_name = 'Тэг'
@@ -105,6 +116,7 @@ class Recipe(models.Model):
     )
 
     class Meta:
+        ordering = ('-pub_date',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 

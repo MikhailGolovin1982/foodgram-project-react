@@ -19,6 +19,6 @@ urlpatterns = [
     path('users/me/', UserViewSet.as_view({'get': 'me'})),
     path('users/subscriptions/', SubscribeViewSet.as_view({'get': 'subscriptions'})),
     path('', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken')),  # Работа с токенами.
+    path('auth/', include('djoser.urls.authtoken')),
     path('', include(router.urls)),
 ]

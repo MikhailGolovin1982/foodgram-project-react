@@ -1,5 +1,4 @@
 import os
-from datetime import timedelta
 from distutils.util import strtobool
 
 from dotenv import load_dotenv
@@ -130,13 +129,8 @@ DEFAULT_FROM_EMAIL = 'admin@yadmb.fake'
 
 DJOSER = {
     'PERMISSIONS': {
-        # 'user': ['rest_framework.permissions.IsAuthenticated'],
         'user': ['api.permissions.IsOwnerOrReadOnly'],
         'user_list': ['api.permissions.IsOwnerOrReadOnly'],
     },
     'HIDE_USERS': False,
-    'SERIALIZERS': {
-        'user': 'api.serializers.users.CustomUserSerializer',
-        'current_user': 'api.serializers.users.CustomUserSerializer',
-    },
 }

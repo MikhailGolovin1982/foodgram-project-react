@@ -11,7 +11,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from api.serializers.recipes import (FavoriteSerializer, IngredientSerializer,
-                                     RecipeSerializePOST, RecipeSerializer,
+                                     RecipeSerializerWrite, RecipeSerializer,
                                      ShoppingCartSerializer, TagSerializer)
 from api.serializers.users import RecipeShortSerializer
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
@@ -23,9 +23,8 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    # pagination_class = None
-    search_fields = ('name',)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('name',)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -38,10 +37,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    filter_backends = (DjangoFilterBackend,)
+    search_fields = ('tags',)
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
-            return RecipeSerializePOST
+            return RecipeSerializerWrite
         return RecipeSerializer
 
     @action(
@@ -49,11 +50,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=['post', 'delete'],
         permission_classes=(permissions.IsAuthenticated,)
     )
-    def favorite(self, request, *args, **kwargs):
+    def favorite(self, request, **kwargs):
         """Позволяет текущему пользователю добавить/удалить
         рецепт в список избранных"""
 
-        target_recipe = int(kwargs['id'])
+        target_recipe = int(kwargs['pk'])
         recipe = get_object_or_404(Recipe, id=target_recipe)
         if request.method == 'POST':
             serializer = FavoriteSerializer(
@@ -78,11 +79,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=['post', 'delete'],
         permission_classes=(permissions.IsAuthenticated,)
     )
-    def shopping_cart(self, request, *args, **kwargs):
+    def shopping_cart(self, request, **kwargs):
         """Позволяет текущему пользователю добавить/удалить
         рецепт в список покупок"""
 
-        target_recipe = int(kwargs['id'])
+        target_recipe = int(kwargs['pk'])
         recipe = get_object_or_404(Recipe, id=target_recipe)
         if request.method == 'POST':
             if ShoppingCart.objects.filter(
@@ -108,15 +109,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
-        detail=True,
+        detail=False,
         methods=['get'],
         permission_classes=(permissions.IsAuthenticated,)
     )
-    def download_shopping_cart(self, request, *args, **kwargs):
+    def download_shopping_cart(self, request):
         """Позволяет текущему пользователю получить список ингредиентов для покупки"""
 
         if not request.user.is_authenticated:
-            return Response({'Пользователь не авторизован'}, status=401)
+            return Response({'Пользователь не авторизован'}, status=status.HTTP_401_UNAUTHORIZED)
 
         buffer = io.BytesIO()
         page = canvas.Canvas(buffer)
@@ -138,7 +139,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 string = f'{index}. {ingredient["recipe__ingredients__name"]} -'
                 string += f'{ingredient["amount"]} '
                 string += f'{ingredient["recipe__ingredients__measurement_unit"]}'
-                # print(string)
                 page.drawString(
                     x_position, y_position - indent,
                     string)

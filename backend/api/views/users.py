@@ -1,31 +1,32 @@
 import djoser.views
+from djoser.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from api.serializers.users import (SubscribeSerializer,
-                                   SubscriptionShowSerializer)
+                                   SubscriptionShowSerializer, CustomUserSerializer, CustomUserCreateSerializer)
 from users.models import Follow, User
 
 
 class UserViewSet(djoser.views.UserViewSet):
+
     @action(['get'], detail=False)
     def me(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return Response({'Пользователь не авторизован'}, status=status.HTTP_401_UNAUTHORIZED)
+
         self.get_object = self.get_instance
-        if request.method == "GET":
+        if request.method == 'GET':
             return self.retrieve(request, *args, **kwargs)
-
-
-class SubscribeViewSet(viewsets.ModelViewSet):
-    serializer_class = SubscriptionShowSerializer
 
     @action(
         detail=True,
         methods=['post', 'delete'],
         permission_classes=(permissions.IsAuthenticated,)
     )
-    def subscribe(self, request, *args, **kwargs):
+    def subscribe(self, request, **kwargs):
         """Позволяет текущему пользователю подписываться/отписываться от
         от автора контента, чей профиль он просматривает."""
 
@@ -63,5 +64,14 @@ class SubscribeViewSet(viewsets.ModelViewSet):
         return Response(
             serializer.data, status=status.HTTP_200_OK
         )
+
+    def get_serializer_class(self):
+        if self.action in ['subscribe', 'subscriptions']:
+            return SubscriptionShowSerializer
+        elif self.action == 'create':
+            return CustomUserCreateSerializer
+        elif self.action == 'set_password':
+            return settings.SERIALIZERS.set_password
+        return CustomUserSerializer
 
 

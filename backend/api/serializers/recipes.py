@@ -70,7 +70,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientRecipeSerializer(
         many=True, read_only=True, source='recipe_ingredients'
     )
-    image = Base64ImageField(required=False, allow_null=True)
+    image = Base64ImageField(required=True, allow_null=True)
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
 
@@ -94,7 +94,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         return ShoppingCart.objects.filter(user=request_user, recipe=obj).exists()
 
 
-class RecipeSerializePOST(serializers.ModelSerializer):
+class RecipeSerializerWrite(serializers.ModelSerializer):
     image = Base64ImageField(required=False, allow_null=True)
     ingredients = IngredientRecipeLightSerializer(
         many=True, read_only=False
@@ -129,7 +129,6 @@ class RecipeSerializePOST(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         recipe = instance
-        print(instance.tags)
         if not validated_data:
             return instance
         instance.image = validated_data.get('image', instance.image)

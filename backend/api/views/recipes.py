@@ -38,7 +38,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
-    search_fields = ('tags',)
+    filterset_fields = ('tags',)
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:

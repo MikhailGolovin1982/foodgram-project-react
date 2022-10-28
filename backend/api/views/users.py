@@ -59,7 +59,8 @@ class UserViewSet(djoser.views.UserViewSet):
         """Позволяет текущему пользователю
         просмотреть свои подписки."""
 
-        queryset = [obj.following for obj in Follow.objects.filter(user=request.user)]
+        queryset = User.objects.filter(following__user=request.user)
+
         serializer = self.get_serializer(queryset, many=True)
         return Response(
             serializer.data, status=status.HTTP_200_OK

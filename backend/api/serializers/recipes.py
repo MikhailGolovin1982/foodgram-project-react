@@ -18,9 +18,10 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class IngredientRecipeSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(read_only=True, source='ingredient.id')
-    name = serializers.CharField(read_only=True,
-                                 source='ingredient.name'
-                                 )
+    name = serializers.CharField(
+        read_only=True,
+        source='ingredient.name'
+    )
     measurement_unit = serializers.CharField(
         read_only=True,
         source='ingredient.measurement_unit'
@@ -68,7 +69,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientRecipeSerializer(
         many=True, read_only=True, source='recipe_ingredients'
     )
-    image = Base64ImageField(required=True, allow_null=True)
+    image = Base64ImageField(required=True, allow_null=False)
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
 
@@ -93,7 +94,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializerWrite(serializers.ModelSerializer):
-    image = Base64ImageField(required=False, allow_null=True)
+    image = Base64ImageField(required=True, allow_null=False)
     ingredients = IngredientRecipeLightSerializer(
         many=True, read_only=False
     )
@@ -146,7 +147,7 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
         return instance
 
     def to_representation(self, instance):
-        return self.initial_data
+        return RecipeSerializer(instance, context=self.context).data
 
 
 class FavoriteSerializer(serializers.ModelSerializer):

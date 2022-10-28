@@ -32,23 +32,26 @@ class UserViewSet(djoser.views.UserViewSet):
 
         target_user = int(kwargs['id'])
         author = get_object_or_404(User, id=target_user)
-        if request.method == 'POST':
-            serializer = SubscribeSerializer(
-                data={'user': request.user.id, 'following': author.id}
+        if request.method == 'DELETE':
+            subscription = get_object_or_404(
+                Follow, user=request.user, following=author
             )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            author_serializer = SubscriptionShowSerializer(
-                author, context={'request': request}
-            )
-            return Response(
-                author_serializer.data, status=status.HTTP_201_CREATED
-            )
-        subscription = get_object_or_404(
-            Follow, user=request.user, following=author
+            subscription.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        serializer = SubscribeSerializer(
+            data={'user': request.user.id, 'following': author.id}
         )
-        subscription.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        author_serializer = SubscriptionShowSerializer(
+            author, context={'request': request}
+        )
+        return Response(
+            author_serializer.data, status=status.HTTP_201_CREATED
+        )
+
+
 
     @action(
         detail=False,

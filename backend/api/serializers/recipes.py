@@ -11,7 +11,6 @@ from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
@@ -41,7 +40,6 @@ class IngredientRecipeLightSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Tag
         fields = ('id', 'name', 'color', 'slug')
@@ -147,6 +145,9 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
         instance.save()
         return instance
 
+    def to_representation(self, instance):
+        return self.initial_data
+
 
 class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -174,5 +175,3 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
                 message='Only unique recipe for purchases is possible'
             )
         ]
-
-

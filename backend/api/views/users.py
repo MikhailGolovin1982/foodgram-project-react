@@ -12,14 +12,14 @@ from users.models import Follow, User
 
 class UserViewSet(djoser.views.UserViewSet):
 
-    @action(['get'], detail=False)
+    @action(
+        methods=['get'],
+        detail=False,
+        permission_classes=(permissions.IsAuthenticated,),
+    )
     def me(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return Response({'Пользователь не авторизован'}, status=status.HTTP_401_UNAUTHORIZED)
-
         self.get_object = self.get_instance
-        if request.method == 'GET':
-            return self.retrieve(request, *args, **kwargs)
+        return super().retrieve(request, *args, **kwargs)
 
     @action(
         detail=True,

@@ -3,14 +3,18 @@ from djoser.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
+from api.filters import SubscriptionsFilter
 from api.serializers.users import (SubscribeSerializer,
                                    SubscriptionShowSerializer, CustomUserSerializer, CustomUserCreateSerializer)
 from users.models import Follow, User
 
 
 class UserViewSet(djoser.views.UserViewSet):
+    filterset_class = SubscriptionsFilter
+    pagination_class = PageNumberPagination
 
     @action(
         methods=['get'],
@@ -18,8 +22,9 @@ class UserViewSet(djoser.views.UserViewSet):
         permission_classes=(permissions.IsAuthenticated,),
     )
     def me(self, request, *args, **kwargs):
-        self.get_object = self.get_instance
-        return super().retrieve(request, *args, **kwargs)
+        # self.get_object = self.get_instance
+        # return super().retrieve(request, *args, **kwargs)
+        return super().me(request, *args, **kwargs)
 
     @action(
         detail=True,
@@ -50,8 +55,6 @@ class UserViewSet(djoser.views.UserViewSet):
         return Response(
             author_serializer.data, status=status.HTTP_201_CREATED
         )
-
-
 
     @action(
         detail=False,

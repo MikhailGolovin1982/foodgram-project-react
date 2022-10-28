@@ -56,23 +56,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         target_recipe = int(kwargs['pk'])
         recipe = get_object_or_404(Recipe, id=target_recipe)
-        if request.method == 'POST':
-            serializer = FavoriteSerializer(
-                data={'user': request.user.id, 'recipe': recipe.id}
+        if request.method == 'DELETE':
+            favorite = get_object_or_404(
+                Favorite, user=request.user, recipe=recipe
             )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            represent_serializer = RecipeShortSerializer(
-                recipe, context={'request': request}
-            )
-            return Response(
-                represent_serializer.data, status=status.HTTP_201_CREATED
-            )
-        favorite = get_object_or_404(
-            Favorite, user=request.user, recipe=recipe
+            favorite.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        serializer = FavoriteSerializer(
+            data={'user': request.user.id, 'recipe': recipe.id}
         )
-        favorite.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        represent_serializer = RecipeShortSerializer(
+            recipe, context={'request': request}
+        )
+        return Response(
+            represent_serializer.data, status=status.HTTP_201_CREATED
+        )
 
     @action(
         detail=True,

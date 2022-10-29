@@ -40,7 +40,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('tags',)
     filterset_class = RecipeFilter
     pagination_class = LimitResultsSetPagination
 

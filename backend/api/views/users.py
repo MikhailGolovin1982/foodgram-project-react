@@ -1,20 +1,22 @@
 import djoser.views
 from djoser.conf import settings
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, status, viewsets
+from rest_framework import permissions, status
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from api.filters import SubscriptionsFilter
-from api.serializers.users import (SubscribeSerializer,
-                                   SubscriptionShowSerializer, CustomUserSerializer, CustomUserCreateSerializer)
+from api.paginations import LimitResultsSetPagination
+from api.serializers.users import (
+    SubscribeSerializer,
+    SubscriptionShowSerializer,
+    CustomUserSerializer,
+    CustomUserCreateSerializer
+)
 from users.models import Follow, User
 
 
 class UserViewSet(djoser.views.UserViewSet):
-    filterset_class = SubscriptionsFilter
-    pagination_class = PageNumberPagination
+    pagination_class = LimitResultsSetPagination
 
     @action(
         methods=['get'],
@@ -22,8 +24,6 @@ class UserViewSet(djoser.views.UserViewSet):
         permission_classes=(permissions.IsAuthenticated,),
     )
     def me(self, request, *args, **kwargs):
-        # self.get_object = self.get_instance
-        # return super().retrieve(request, *args, **kwargs)
         return super().me(request, *args, **kwargs)
 
     @action(
@@ -66,8 +66,8 @@ class UserViewSet(djoser.views.UserViewSet):
         просмотреть свои подписки."""
 
         queryset = User.objects.filter(following__user=request.user)
-
         serializer = self.get_serializer(queryset, many=True)
+
         return Response(
             serializer.data, status=status.HTTP_200_OK
         )
@@ -80,5 +80,10 @@ class UserViewSet(djoser.views.UserViewSet):
         elif self.action == 'set_password':
             return settings.SERIALIZERS.set_password
         return CustomUserSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update(self.request.query_params)
+        return context
 
 

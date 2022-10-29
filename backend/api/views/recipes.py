@@ -10,6 +10,7 @@ from rest_framework import filters, permissions, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from api.paginations import LimitResultsSetPagination
 from api.serializers.recipes import (FavoriteSerializer, IngredientSerializer,
                                      RecipeSerializerWrite, RecipeSerializer,
                                      ShoppingCartSerializer, TagSerializer)
@@ -39,6 +40,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('tags',)
+    pagination_class = LimitResultsSetPagination
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:

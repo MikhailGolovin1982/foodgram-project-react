@@ -8,10 +8,10 @@ class RecipeFilter(filters.FilterSet):
     # category = filters.CharFilter(field_name='category__slug')
     # genre = filters.CharFilter(field_name='genre__slug')
     # name = filters.CharFilter(field_name="name", lookup_expr='icontains')
-    # year = filters.NumberFilter(field_name='year')
+    author = filters.NumberFilter(field_name='author__id')
 
     class Meta:
         model = Recipe
         fields = (
-            'tags',
+            'tags', 'author',
         )

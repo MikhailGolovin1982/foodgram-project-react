@@ -85,11 +85,12 @@ class SubscriptionShowSerializer(CustomUserSerializer):
 
     def get_recipes(self, obj):
         recipes_limit = self.context.get('recipes_limit')
-        if recipes_limit is None:
+        try:
+            recipes_limit = recipes_limit[0]
+            author_recipes = obj.recipes.all()[:int(recipes_limit)]
+        except ValueError:
             author_recipes = obj.recipes.all()
-        else:
-            recipes_limit = int(recipes_limit[0])
-            author_recipes = obj.recipes.all()[:recipes_limit]
+
         return RecipeShortSerializer(
             author_recipes, many=True
         ).data

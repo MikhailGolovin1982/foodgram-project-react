@@ -48,3 +48,4 @@ toml==0.10.2
 tzdata==2022.2
 uritemplate==4.1.1
 urllib3==1.26.12
+psycopg2-binary==2.8.6

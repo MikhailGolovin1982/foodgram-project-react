@@ -11,6 +11,11 @@ class IngredientRecipeInline(admin.TabularInline):
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'name',
+        'measurement_unit',
+    )
     inlines = (IngredientRecipeInline,)
 
 
@@ -45,4 +50,10 @@ class ShoppingCartAdmin(admin.ModelAdmin):
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'name',
+        'slug',
+        'color',
+    )
     prepopulated_fields = {'slug': ('name',)}

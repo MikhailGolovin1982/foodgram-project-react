@@ -5,7 +5,6 @@ from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from api.paginations import LimitResultsSetPagination
 from api.serializers.users import (
     SubscribeSerializer,
     SubscriptionShowSerializer,
@@ -16,7 +15,6 @@ from users.models import Follow, User
 
 
 class UserViewSet(djoser.views.UserViewSet):
-    pagination_class = LimitResultsSetPagination
 
     @action(
         methods=['get'],

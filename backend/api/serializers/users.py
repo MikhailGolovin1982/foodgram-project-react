@@ -92,7 +92,7 @@ class SubscriptionShowSerializer(CustomUserSerializer):
             ).data
 
         try:
-            author_recipes = obj.recipes.all()[:int(recipes_limit)]
+            author_recipes = obj.recipes.all()[:int(recipes_limit[0])]
             return RecipeShortSerializer(
                 author_recipes, many=True
             ).data

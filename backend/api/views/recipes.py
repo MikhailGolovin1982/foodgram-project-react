@@ -1,21 +1,20 @@
 import io
 
-from django.db.models import Sum
-from django.http import FileResponse, HttpResponse
-from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from reportlab.pdfbase import pdfmetrics, ttfonts
-from reportlab.pdfgen import canvas
-from rest_framework import filters, permissions, serializers, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
-
 from api.filters import RecipeFilter
 from api.serializers.recipes import (FavoriteSerializer, IngredientSerializer,
                                      RecipeSerializer, RecipeSerializerWrite,
                                      ShoppingCartSerializer, TagSerializer)
 from api.serializers.users import RecipeShortSerializer
+from django.db.models import Sum
+from django.http import FileResponse, HttpResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from reportlab.pdfbase import pdfmetrics, ttfonts
+from reportlab.pdfgen import canvas
+from rest_framework import filters, permissions, serializers, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 FILENAME = 'my_shopping_cart'
 

@@ -17,7 +17,10 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(read_only=True, source='ingredient.id')
+    id = serializers.PrimaryKeyRelatedField(
+        read_only=True,
+        source='ingredient.id'
+    )
     name = serializers.CharField(
         read_only=True,
         source='ingredient.name'
@@ -75,8 +78,18 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ['id', 'tags', 'author', 'ingredients', 'is_favorited', 'is_in_shopping_cart', 'name', 'image',
-                  'text', 'cooking_time']
+        fields = [
+            'id',
+            'tags',
+            'author',
+            'ingredients',
+            'is_favorited',
+            'is_in_shopping_cart',
+            'name',
+            'image',
+            'text',
+            'cooking_time'
+        ]
 
     def get_is_favorited(self, obj):
         request_user = self.context.get('request').user
@@ -90,7 +103,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         if not request_user.is_authenticated:
             return False
 
-        return ShoppingCart.objects.filter(user=request_user, recipe=obj).exists()
+        return ShoppingCart.objects.filter(
+            user=request_user,
+            recipe=obj
+        ).exists()
 
 
 class RecipeSerializerWrite(serializers.ModelSerializer):

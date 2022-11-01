@@ -12,22 +12,39 @@ class CustomUserSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed']
+        fields = [
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed'
+        ]
 
     def get_is_subscribed(self, obj):
         request_user = self.context.get('request').user
         if not request_user.is_authenticated:
             return False
-        elif request_user == obj:
+        if request_user == obj:
             return False
 
-        return Follow.objects.filter(user=request_user, following=obj).exists()
+        return Follow.objects.filter(
+            user=request_user,
+            following=obj
+        ).exists()
 
 
 class CustomUserCreateSerializer(UserSerializer):
     class Meta:
         model = User
-        fields = ['email', 'id', 'username', 'first_name', 'last_name', 'password']
+        fields = [
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'password'
+        ]
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):

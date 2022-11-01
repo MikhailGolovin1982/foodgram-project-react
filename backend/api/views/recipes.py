@@ -12,7 +12,7 @@ from rest_framework.response import Response
 
 from api.filters import RecipeFilter
 from api.serializers.recipes import (FavoriteSerializer, IngredientSerializer,
-                                     RecipeSerializerWrite, RecipeSerializer,
+                                     RecipeSerializer, RecipeSerializerWrite,
                                      ShoppingCartSerializer, TagSerializer)
 from api.serializers.users import RecipeShortSerializer
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
@@ -93,7 +93,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             if ShoppingCart.objects.filter(
                     user=request.user, recipe=recipe
             ).exists():
-                raise serializers.ValidationError('Вы уже добавили этот sрецепт в корзину')
+                raise serializers.ValidationError(
+                    'Вы уже добавили этот sрецепт в корзину'
+                )
 
             serializer = ShoppingCartSerializer(
                 data={'user': request.user.id, 'recipe': recipe.id}
@@ -118,10 +120,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=(permissions.IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
-        """Позволяет текущему пользователю получить список ингредиентов для покупки"""
+        """Позволяет текущему пользователю получить
+        список ингредиентов для покупки"""
 
         if not request.user.is_authenticated:
-            return Response({'Пользователь не авторизован'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {'Пользователь не авторизован'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
 
         buffer = io.BytesIO()
         page = canvas.Canvas(buffer)
@@ -140,9 +146,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
             indent = 20
             page.drawString(x_position, y_position, 'Cписок покупок:')
             for index, ingredient in enumerate(user_shopping_cart, start=1):
-                string = f'{index}. {ingredient["recipe__ingredients__name"]} -'
+                string = (f'{index}. '
+                          f'{ingredient["recipe__ingredients__name"]} -')
                 string += f'{ingredient["amount"]} '
-                string += f'{ingredient["recipe__ingredients__measurement_unit"]}'
+                string += (
+                    f'{ingredient["recipe__ingredients__measurement_unit"]}'
+                )
                 page.drawString(
                     x_position, y_position - indent,
                     string)

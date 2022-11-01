@@ -1,16 +1,13 @@
 import djoser.views
-from djoser.conf import settings
 from django.shortcuts import get_object_or_404
+from djoser.conf import settings
 from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from api.serializers.users import (
-    SubscribeSerializer,
-    SubscriptionShowSerializer,
-    CustomUserSerializer,
-    CustomUserCreateSerializer
-)
+from api.serializers.users import (CustomUserCreateSerializer,
+                                   CustomUserSerializer, SubscribeSerializer,
+                                   SubscriptionShowSerializer)
 from users.models import Follow, User
 
 
@@ -78,9 +75,9 @@ class UserViewSet(djoser.views.UserViewSet):
     def get_serializer_class(self):
         if self.action in ['subscribe', 'subscriptions']:
             return SubscriptionShowSerializer
-        elif self.action == 'create':
+        if self.action == 'create':
             return CustomUserCreateSerializer
-        elif self.action == 'set_password':
+        if self.action == 'set_password':
             return settings.SERIALIZERS.set_password
         return CustomUserSerializer
 
@@ -88,5 +85,3 @@ class UserViewSet(djoser.views.UserViewSet):
         context = super().get_serializer_context()
         context.update(self.request.query_params)
         return context
-
-

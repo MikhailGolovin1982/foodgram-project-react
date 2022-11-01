@@ -31,8 +31,8 @@ jobs:
     # if: github.ref == 'refs/heads/master'
     steps:
       - name: Check out the repo
-     # Проверка доступности репозитория Docker Hub для workflow
-       uses: actions/checkout@v2
+        # Проверка доступности репозитория Docker Hub для workflow
+        uses: actions/checkout@v2
 
 
 #      - name: Set up Docker Buildx

@@ -15,6 +15,7 @@ class RecipeFilter(filters.FilterSet):
         model = Recipe
         fields = (
             'author',
+            'name'
             'tags',
             'is_favorited',
             'is_in_shopping_cart'

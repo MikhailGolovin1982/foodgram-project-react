@@ -30,7 +30,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = self.queryset
         name = self.request.query_params.get('name')
         if name is not None:
-            queryset = queryset.filter(name__startwith=name)
+            queryset = queryset.filter(name__startswith=name)
         return queryset
 
 

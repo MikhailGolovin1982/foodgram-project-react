@@ -1,14 +1,6 @@
 from django_filters import rest_framework as filters
 
-from recipes.models import Ingredient, Recipe, Tag
-
-
-class IngredientFilter(filters.FilterSet):
-    class Meta:
-        model = Ingredient
-        fields = {
-            'name': ['startswith'],
-        }
+from recipes.models import Recipe, Tag
 
 
 class RecipeFilter(filters.FilterSet):

@@ -24,10 +24,14 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (permissions.AllowAny,)
-    # filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    # search_fields = ('^name',)
-    filterset_class = IngredientFilter
     pagination_class = None
+
+    def get_queryset(self):
+        queryset = self.queryset
+        name = self.request.query_params.get('name')
+        if name is not None:
+            queryset = queryset.filter(name__startwith=name)
+        return queryset
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):

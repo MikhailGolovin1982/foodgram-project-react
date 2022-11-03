@@ -1,10 +1,17 @@
 from django_filters import rest_framework as filters
-from recipes.models import Recipe
+from recipes.models import Recipe, Ingredient
+
+
+class IngredientFilter(filters.FilterSet):
+    class Meta:
+        model = Ingredient
+        fields = {
+            'name': ['startswith'],
+        }
 
 
 class RecipeFilter(filters.FilterSet):
     tags = filters.CharFilter(field_name='tags__slug')
-    # name = filters.CharFilter(method='get_name')
     author = filters.NumberFilter(field_name='author__id')
     is_favorited = filters.BooleanFilter(method='get_is_favorited')
     is_in_shopping_cart = filters.BooleanFilter(
@@ -16,7 +23,6 @@ class RecipeFilter(filters.FilterSet):
         model = Recipe
         fields = (
             'author',
-            # 'name'
             'tags',
             'is_favorited',
             'is_in_shopping_cart'

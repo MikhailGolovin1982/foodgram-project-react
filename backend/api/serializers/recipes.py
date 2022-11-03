@@ -187,7 +187,7 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
 
         validators = [
             UniqueTogetherValidator(
-                queryset=Favorite.objects.all(),
+                queryset=ShoppingCart.objects.all(),
                 fields=['user', 'recipe'],
                 message='Only unique recipe for purchases is possible'
             )
